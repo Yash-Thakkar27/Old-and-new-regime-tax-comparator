@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Regime Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7fa; margin: 0; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #ccc; padding: 24px; }
+        h1 { text-align: center; color: #2a2a2a; }
+        label { display: block; margin-top: 16px; font-weight: bold; }
+        input[type="number"], input[type="text"] { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #ccc; }
+        button { margin-top: 24px; padding: 12px 24px; background: #007bff; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:disabled { background: #aaa; }
+        .result { margin-top: 32px; background: #f0f8ff; border-radius: 6px; padding: 16px; }
+        .legal { font-size: 0.95em; color: #444; margin-top: 12px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Tax Regime Chatbot</h1>
+    <form id="taxForm">
+        <label>Fiscal Year <input type="text" name="fiscal_year" value="2025-26"></label>
+        <label>Age <input type="number" name="age" value="30"></label>
+        <label>Gross Salary <input type="number" name="gross_salary" value="0"></label>
+        <label>Other Income <input type="number" name="other_income" value="0"></label>
+        <label>Investments under 80C <input type="number" name="investments_80c" value="0"></label>
+        <label>Medical Insurance Premium (80D) <input type="number" name="insurance_80d" value="0"></label>
+        <label>Home Loan Interest <input type="number" name="home_loan_interest" value="0"></label>
+        <label>Education Loan Interest (80E) <input type="number" name="education_loan_interest" value="0"></label>
+        <label>Short-term Capital Gains (Equity) <input type="number" name="stcg_equity" value="0"></label>
+        <label>Long-term Capital Gains (Equity) <input type="number" name="ltcg_equity" value="0"></label>
+        <label>Other Short-term Capital Gains <input type="number" name="other_stcg" value="0"></label>
+        <label>Other Long-term Capital Gains <input type="number" name="other_ltcg" value="0"></label>
+        <label>Indexed Cost for Other LTCG <input type="number" name="other_ltcg_indexed_cost" value="0"></label>
+        <label>HRA Exempt Amount <input type="number" name="hra_exempt" value="0"></label>
+        <label>LTA Exempt Amount <input type="number" name="lta_exempt" value="0"></label>
+        <label>Professional Tax Paid <input type="number" name="professional_tax" value="0"></label>
+        <label>Other Exempt Allowances <input type="number" name="exempt_allowances" value="0"></label>
+        <button type="submit">Compare Tax Regimes</button>
+    </form>
+    <div class="result" id="result" style="display:none;"></div>
+</div>
+<script>
+    document.getElementById('taxForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = {};
+        for (const el of form.elements) {
+            if (el.name) data[el.name] = el.value;
+        }
+        document.getElementById('result').style.display = 'none';
+        const res = await fetch('/api/compare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const out = await res.json();
+        let html = `<b>Old Regime Tax:</b> ₹${out.old_regime.tax_after_cess}<br>`;
+        html += `<b>New Regime Tax:</b> ₹${out.new_regime.tax_after_cess}<br>`;
+        html += `<b>Difference (Old - New):</b> ₹${out.difference_old_minus_new}<br>`;
+        html += `<p><b>Explanation:</b> ${out.explanation}</p>`;
+        html += `<div class='legal'><b>Legal Citations:</b><ul>`;
+        for (const [k, v] of Object.entries(out.legal_snippets)) {
+            html += `<li><b>${k}:</b> ${v}</li>`;
+        }
+        html += `</ul></div>`;
+        document.getElementById('result').innerHTML = html;
+        document.getElementById('result').style.display = '';
+    };
+</script>
+</body>
+</html>
