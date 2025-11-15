@@ -3,7 +3,6 @@
 Vector indexing and retrieval for legal documents and tax snippets.
 Uses FAISS for local vector storage with provider-agnostic embedding wrapper.
 """
-
 import os
 import json
 import logging
@@ -18,7 +17,7 @@ except ImportError:
 from config import (
     EMBEDDING_MODEL, 
     LLM_MODEL, 
-    EMINI_API_KEY,
+    GEMINI_API_KEY,
     INDEX_PATH, 
     INDEX_METADATA_PATH, 
     LEGAL_DOCS_PATH,
@@ -41,25 +40,61 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 def get_embedding(text: str) -> Optional[List[float]]:
-    """
-    Get embedding vector for text using Gemini embedding model.
-    """
-    if not EMINI_API_KEY:
-        logger.warning("EMINI_API_KEY not set, cannot generate embeddings")
+    print(f"[EMBEDDING] Requesting embedding for: {text[:50]}...")
+    
+    if not GEMINI_API_KEY:
+        print("[ERROR] No API key!")
         return None
     
     try:
-        # Use Gemini's embedding model
+        print("[EMBEDDING] Calling Gemini...")
         result = genai.embed_content(
-            model="models/text-embedding-004",  # or "models/embedding-001"
+            model="models/text-embedding-004",
             content=text,
             task_type="retrieval_document"
         )
+        print(f"[EMBEDDING] ✓ Success! Dimension: {len(result['embedding'])}")
         return result['embedding']
-        
     except Exception as e:
-        logger.error(f"Error getting embedding from Gemini: {e}")
+        print(f"[EMBEDDING] ✗ Failed: {e}")
         return None
+# def get_embedding(text: str) -> Optional[List[float]]:
+#     """
+#     Get embedding vector for text using Gemini embedding model.
+#     """
+#     print(f"\n[RAG] get_embedding called for text: {text[:50]}...")
+
+#     if not EMINI_API_KEY:
+#         logger.warning("EMINI_API_KEY not set, cannot generate embeddings")
+#         return None
+    
+#     try:
+#         print("[RAG] Calling Gemini API for embedding...")
+#         result = genai.embed_content(
+#             model="models/text-embedding-004",
+#             content=text,
+#             task_type="retrieval_document"
+#         )
+#         print(f"[RAG SUCCESS] Embedding generated, dimension: {len(result['embedding'])}")
+#         return result['embedding']
+        
+#     except Exception as e:
+#         print(f"[RAG ERROR] Failed to get embedding: {e}")
+#         logger.error(f"Error getting embedding from Gemini: {e}")
+#         return None
+    
+#     try:
+#         # Use Gemini's embedding model
+#         result = genai.embed_content(
+#             model="models/text-embedding-004",  # or "models/embedding-001"
+#             content=text,
+#             task_type="retrieval_document"
+#         )
+#         return result['embedding']
+        
+#     except Exception as e:
+#         logger.error(f"Error getting embedding from Gemini: {e}")
+#         return None
 
 
 def call_llm(prompt: str) -> Optional[str]:
@@ -72,7 +107,7 @@ def call_llm(prompt: str) -> Optional[str]:
     
     try:
         # Use Gemini's generative model
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel(LLM_MODEL)
         response = model.generate_content(
             prompt,
             generation_config={
@@ -177,6 +212,7 @@ class LegalVectorIndex:
         self.dimension = 384  # Default dimension, will be updated
         
     def build_index(self, documents: List[Dict[str, str]]) -> bool:
+        print(f"\n[INDEX] Building index with {len(documents)} documents...")
         """
         Build FAISS index from documents.
         
@@ -230,6 +266,9 @@ class LegalVectorIndex:
                 json.dump(self.metadata, f, indent=2)
             
             logger.info(f"Built index with {len(self.metadata)} documents")
+
+            print(f"[INDEX] ✓ Built successfully with {len(self.metadata)} docs")
+            print(f"[INDEX] Saved to: {self.index_path}\n")
             return True
             
         except Exception as e:
@@ -398,6 +437,7 @@ def retrieve_legal_snippets(
     vector_index: LegalVectorIndex,
     top_k: int = TOP_K_SNIPPETS
 ) -> Dict[str, Dict]:
+    print(f"[RETRIEVE] Searching for top {top_k} snippets...")
     """
     Retrieve relevant legal snippets based on user profile.
     
@@ -448,7 +488,7 @@ def retrieve_legal_snippets(
             'score': result['score'],
             'source': result['source']
         }
-    
+    print(f"[RETRIEVE] ✓ Found {len(snippets_dict)} relevant snippets")
     return snippets_dict
 
 

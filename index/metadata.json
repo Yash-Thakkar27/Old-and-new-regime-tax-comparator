@@ -1,0 +1,72 @@
+[
+  {
+    "key": "snippet:standard deduction",
+    "text": "Section 16(ia): Standard deduction of Rs 50,000 is available from salary income.",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:80C",
+    "text": "Section 80C: Deduction up to Rs 1,50,000 for eligible investments (e.g., PPF, ELSS, LIC, etc.).",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:80D",
+    "text": "Section 80D: Deduction for medical insurance premium (Rs 25,000, or Rs 50,000 for senior citizens).",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:home loan interest",
+    "text": "Section 24(b): Deduction up to Rs 2,00,000 for interest on home loan (self-occupied property).",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:HRA",
+    "text": "Section 10(13A): HRA exemption is available as per least of actual HRA, rent paid minus 10% salary, or 50%/40% of salary (metro/non-metro).",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:LTA",
+    "text": "Section 10(5): LTA exemption is available for travel within India, subject to conditions.",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:professional tax",
+    "text": "Section 16(iii): Professional tax paid is allowed as deduction from salary income.",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:exempt allowances",
+    "text": "Section 10: Certain allowances (e.g., children education, hostel, transport) are exempt up to specified limits.",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:equity LTCG",
+    "text": "Section 112A: Long-term capital gains on listed equity shares above Rs 1 lakh taxed at 10% (without indexation).",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:equity STCG",
+    "text": "Section 111A: Short-term capital gains on listed equity shares taxed at 15%.",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:other LTCG",
+    "text": "Section 48/112: Long-term capital gains on non-equity assets taxed at 20% with indexation.",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:rebate",
+    "text": "Section 87A: Rebate up to Rs 12,500 for resident individuals with total income up to Rs 5 lakh.",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:surcharge",
+    "text": "Surcharge applies on total income exceeding Rs 50 lakh as per Finance Act slabs.",
+    "source": "_RAG_SNIPPETS"
+  },
+  {
+    "key": "snippet:cess",
+    "text": "Health & Education Cess: 4% on income-tax plus surcharge.",
+    "source": "_RAG_SNIPPETS"
+  }
+]

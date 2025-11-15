@@ -69,7 +69,15 @@
         html += `<p><b>Explanation:</b> ${out.explanation}</p>`;
         html += `<div class='legal'><b>Legal Citations:</b><ul>`;
         for (const [k, v] of Object.entries(out.legal_snippets)) {
-            html += `<li><b>${k}:</b> ${v}</li>`;
+            if (typeof v === 'object' && v.text) {
+                // RAG enabled - v is an object with text, score, source
+                html += `<li><b>${k}:</b> ${v.text}`;
+                if (v.score) html += ` <em>(Score: ${v.score})</em>`;
+                html += `</li>`;
+            } else {
+                // Fallback - v is a simple string
+                html += `<li><b>${k}:</b> ${v}</li>`;
+            }
         }
         html += `</ul></div>`;
         document.getElementById('result').innerHTML = html;

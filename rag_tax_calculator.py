@@ -451,6 +451,10 @@ def calculate_tax_new_regime(profile: Dict, fiscal_year: str = "2024-25", age: i
 
 
 def compare_regimes(profile: Dict, fiscal_year: str = "2024-25", age: int = 0) -> Dict:
+    print("\n" + "="*80)
+    print("TAX CALCULATION STARTING")
+    print(f"USE_RAG={USE_RAG}, RAG_AVAILABLE={RAG_AVAILABLE}")
+    print("="*80)
     """Return a comparison dict with both regimes, delta, explanation, and RAG legal snippets."""
     old = calculate_tax_old_regime(profile, fiscal_year=fiscal_year, age=age)
     new = calculate_tax_new_regime(profile, fiscal_year=fiscal_year, age=age)
@@ -469,14 +473,17 @@ def compare_regimes(profile: Dict, fiscal_year: str = "2024-25", age: int = 0) -
     # Retrieve legal snippets using RAG or fallback
     legal_snippets = {}
     
+    # Find this section in compare_regimes:
     if USE_RAG and RAG_AVAILABLE:
+        print("[RAG] Trying to use RAG...")
         try:
             vector_index = _get_vector_index()
             if vector_index is not None and vector_index.index is not None:
-                # Use RAG retrieval
-                legal_snippets = retrieve_legal_snippets(profile, vector_index)
+                print(f"[RAG] ✓ Index loaded: {len(vector_index.metadata)} docs")
                 
-                # Augment explanation with LLM if we have retrieved snippets
+                legal_snippets = retrieve_legal_snippets(profile, vector_index)
+                print(f"[RAG] ✓ Retrieved {len(legal_snippets)} snippets")
+                
                 if legal_snippets:
                     explanation = augment_explanation_with_llm(
                         explanation, 
@@ -484,15 +491,41 @@ def compare_regimes(profile: Dict, fiscal_year: str = "2024-25", age: int = 0) -
                         profile
                     )
             else:
-                # Fall back to original snippets
-                logger.warning("Vector index not available, using fallback")
+                print("[RAG] ✗ Index not available - using fallback")
                 legal_snippets = _rag_snippets_for_profile(profile)
         except Exception as e:
-            logger.error(f"RAG retrieval failed: {e}, using fallback")
+            print(f"[RAG] ✗ Error: {e} - using fallback")
             legal_snippets = _rag_snippets_for_profile(profile)
     else:
-        # Use original fallback method
+        print("[RAG] Not enabled - using fallback")
         legal_snippets = _rag_snippets_for_profile(profile)
+    
+    print(f"[RESULT] Total snippets: {len(legal_snippets)}")
+    print("="*80 + "\n")
+    # if USE_RAG and RAG_AVAILABLE:
+    #     try:
+    #         vector_index = _get_vector_index()
+    #         if vector_index is not None and vector_index.index is not None:
+    #             # Use RAG retrieval
+    #             legal_snippets = retrieve_legal_snippets(profile, vector_index)
+                
+    #             # Augment explanation with LLM if we have retrieved snippets
+    #             if legal_snippets:
+    #                 explanation = augment_explanation_with_llm(
+    #                     explanation, 
+    #                     legal_snippets, 
+    #                     profile
+    #                 )
+    #         else:
+    #             # Fall back to original snippets
+    #             logger.warning("Vector index not available, using fallback")
+    #             legal_snippets = _rag_snippets_for_profile(profile)
+    #     except Exception as e:
+    #         logger.error(f"RAG retrieval failed: {e}, using fallback")
+    #         legal_snippets = _rag_snippets_for_profile(profile)
+    # else:
+    #     # Use original fallback method
+    #     legal_snippets = _rag_snippets_for_profile(profile)
     
     result["explanation"] = explanation
     result["legal_snippets"] = legal_snippets
