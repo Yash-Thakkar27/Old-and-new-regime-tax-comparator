@@ -20,7 +20,14 @@
 <div class="container">
     <h1>Tax Regime Chatbot</h1>
     <form id="taxForm">
-        <label>Fiscal Year <input type="text" name="fiscal_year" value="2025-26"></label>
+        <label>Fiscal Year
+            <select name="fiscal_year">
+                <option value="2024-25">2024-25</option>
+                <option value="2025-26" selected>2025-26</option>
+                <option value="2026-27">2026-27</option>
+                <option value="2027-28">2027-28</option>
+            </select>
+        </label>
         <label>Age <input type="number" name="age" value="30"></label>
         <label>Gross Salary <input type="number" name="gross_salary" value="0"></label>
         <label>Other Income <input type="number" name="other_income" value="0"></label>

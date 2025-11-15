@@ -1,0 +1,9 @@
+[
+  "tests/test_calculator.py::test_basic_comparison",
+  "tests/test_calculator.py::test_education_loan_interest_80e",
+  "tests/test_calculator.py::test_high_income_surcharge",
+  "tests/test_calculator.py::test_hra_lta_prof_tax_exempt_allowances",
+  "tests/test_calculator.py::test_low_income_rebate",
+  "tests/test_calculator.py::test_ltcg_indexation",
+  "tests/test_calculator.py::test_senior_80d_cap"
+]

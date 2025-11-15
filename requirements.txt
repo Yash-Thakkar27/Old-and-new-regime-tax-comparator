@@ -1,1 +1,49 @@
 pytest
+Flask==3.0.0
+faiss-cpu==1.7.4
+numpy==1.24.3
+google-generativeai
+```
+
+## Step 6: Create example legal documents
+
+Create a folder `legal_docs/` and add sample files:
+
+**legal_docs/section_80c.txt:**
+```
+Section 80C of the Income Tax Act, 1961
+Deduction in respect of life insurance premia, deferred annuity, contributions to provident fund, subscription to certain equity shares or debentures, etc.
+
+An individual or Hindu Undivided Family (HUF) can claim a deduction under this section for payments made towards:
+- Life insurance premium
+- Contributions to Public Provident Fund (PPF)
+- Employee's contribution to recognized Provident Fund
+- Subscription to National Savings Certificates (NSC)
+- Investment in ELSS (Equity Linked Savings Scheme)
+- Principal repayment of home loan
+- Tuition fees for children's education (maximum 2 children)
+- Fixed deposits with scheduled banks (5-year term)
+- Senior Citizens Savings Scheme (SCSS)
+- Sukanya Samriddhi Account
+
+The maximum deduction allowed under Section 80C is Rs. 1,50,000 per financial year.
+```
+
+**legal_docs/section_24.txt:**
+```
+Section 24 of the Income Tax Act, 1961
+Deductions from income from house property
+
+Interest on borrowed capital:
+Where the property has been acquired, constructed, repaired, renewed or reconstructed with borrowed capital, the amount of any interest payable on such capital shall be deducted.
+
+For self-occupied property:
+- The deduction for interest paid on home loan is allowed up to Rs. 2,00,000 per annum for self-occupied residential property.
+- This limit applies to interest paid during the financial year.
+
+For let-out property:
+- There is no upper limit for deduction of interest in case of let-out property.
+- The entire interest paid during the year can be claimed as deduction.
+
+Pre-construction period interest:
+Interest paid during the pre-construction period (before acquisition/construction is complete) is allowed as deduction in 5 equal installments starting from the year in which the property is acquired or construction is completed.

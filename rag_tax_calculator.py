@@ -1,6 +1,36 @@
-import re
-
 # --- RAG snippet mapping (very basic, can be extended) ---
+import logging
+from typing import Dict, Optional
+
+# Import RAG components
+try:
+    from config import USE_RAG
+    from rag_index import (
+        build_index_from_snippets_and_docs,
+        retrieve_legal_snippets,
+        augment_explanation_with_llm
+    )
+    RAG_AVAILABLE = True
+except ImportError:
+    USE_RAG = False
+    RAG_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
+
+# Initialize vector index at module level (lazy initialization)
+_vector_index = None
+
+def _get_vector_index():
+    """Lazy initialization of vector index."""
+    global _vector_index
+    if _vector_index is None and USE_RAG and RAG_AVAILABLE:
+        try:
+            _vector_index = build_index_from_snippets_and_docs(_RAG_SNIPPETS)
+        except Exception as e:
+            logger.error(f"Failed to initialize vector index: {e}")
+            _vector_index = None
+    return _vector_index
+
 _RAG_SNIPPETS = {
     "standard deduction": "Section 16(ia): Standard deduction of Rs 50,000 is available from salary income.",
     "80C": "Section 80C: Deduction up to Rs 1,50,000 for eligible investments (e.g., PPF, ELSS, LIC, etc.).",
@@ -295,7 +325,7 @@ def calculate_tax_old_regime(profile: Dict, fiscal_year: str = "2024-25", age: i
     other_ltcg = float(profile.get("other_ltcg", 0.0))
 
     # Deductions
-    standard = rules.get("standard_deduction", STANDARD_DEDUCTION)
+    standard_deduction = rules.get("standard_deduction", 50000)
     investments_80c = min(float(profile.get("investments_80c", 0.0)), rules.get("max_80c", MAX_80C))
     insurance_80d = min(float(profile.get("insurance_80d", 0.0)), rules.get("max_80d", BASE_80D))
     home_loan_interest = min(float(profile.get("home_loan_interest", 0.0)), rules.get("max_home_loan_interest", MAX_HOME_LOAN_INTEREST))
@@ -304,7 +334,7 @@ def calculate_tax_old_regime(profile: Dict, fiscal_year: str = "2024-25", age: i
     lta_exempt = float(profile.get("lta_exempt", 0.0))
     professional_tax = float(profile.get("professional_tax", 0.0))
     exempt_allowances = float(profile.get("exempt_allowances", 0.0))
-    deductions = standard + investments_80c + insurance_80d + home_loan_interest + hra_exempt + lta_exempt + professional_tax + exempt_allowances
+    deductions = standard_deduction + investments_80c + insurance_80d + home_loan_interest + hra_exempt + lta_exempt + professional_tax + exempt_allowances
 
     # Capital gains treatment (simplified)
     # Equity STCG taxed separately at 15%
@@ -432,9 +462,57 @@ def compare_regimes(profile: Dict, fiscal_year: str = "2024-25", age: int = 0) -
         "new_regime": new,
         "difference_old_minus_new": diff,
     }
-    result["explanation"] = _explain_regime_comparison(profile, result)
-    result["legal_snippets"] = _rag_snippets_for_profile(profile)
+    
+    # Generate explanation
+    explanation = _explain_regime_comparison(profile, result)
+    
+    # Retrieve legal snippets using RAG or fallback
+    legal_snippets = {}
+    
+    if USE_RAG and RAG_AVAILABLE:
+        try:
+            vector_index = _get_vector_index()
+            if vector_index is not None and vector_index.index is not None:
+                # Use RAG retrieval
+                legal_snippets = retrieve_legal_snippets(profile, vector_index)
+                
+                # Augment explanation with LLM if we have retrieved snippets
+                if legal_snippets:
+                    explanation = augment_explanation_with_llm(
+                        explanation, 
+                        legal_snippets, 
+                        profile
+                    )
+            else:
+                # Fall back to original snippets
+                logger.warning("Vector index not available, using fallback")
+                legal_snippets = _rag_snippets_for_profile(profile)
+        except Exception as e:
+            logger.error(f"RAG retrieval failed: {e}, using fallback")
+            legal_snippets = _rag_snippets_for_profile(profile)
+    else:
+        # Use original fallback method
+        legal_snippets = _rag_snippets_for_profile(profile)
+    
+    result["explanation"] = explanation
+    result["legal_snippets"] = legal_snippets
+    
     return result
+# def compare_regimes(profile: Dict, fiscal_year: str = "2024-25", age: int = 0) -> Dict:
+#     """Return a comparison dict with both regimes, delta, explanation, and RAG legal snippets."""
+#     old = calculate_tax_old_regime(profile, fiscal_year=fiscal_year, age=age)
+#     new = calculate_tax_new_regime(profile, fiscal_year=fiscal_year, age=age)
+#     diff = round(old["tax_after_cess"] - new["tax_after_cess"], 2)
+#     result = {
+#         "fiscal_year": fiscal_year,
+#         "age": age,
+#         "old_regime": old,
+#         "new_regime": new,
+#         "difference_old_minus_new": diff,
+#     }
+#     result["explanation"] = _explain_regime_comparison(profile, result)
+#     result["legal_snippets"] = _rag_snippets_for_profile(profile)
+#     return result
 
 
 if __name__ == "__main__":

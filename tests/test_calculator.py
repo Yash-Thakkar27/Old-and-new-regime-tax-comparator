@@ -1,3 +1,6 @@
+import pytest
+from rag_tax_calculator import calculate_tax_old_regime, calculate_tax_new_regime, compare_regimes
+
 def test_education_loan_interest_80e():
     # Education loan interest should be fully deductible in old regime
     profile = {
@@ -13,8 +16,6 @@ def test_education_loan_interest_80e():
     # New regime should ignore this deduction
     res_new = calculate_tax_new_regime(profile, fiscal_year="2024-25", age=30)
     assert abs(res_new["taxable_income"] - 800000) < 1
-import pytest
-from rag_tax_calculator import calculate_tax_old_regime, calculate_tax_new_regime, compare_regimes
 
 
 def test_basic_comparison():
